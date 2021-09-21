@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CH máquina</title>
+    <link rel="stylesheet" href="./resources/css/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script defer src="./resources/js/index.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1 class="header-title">CH máquina</h1>
+    </header>
+
+    <main>
+      <section class="output">
+        <div class="output-screen">
+          <p>Pantalla</p>
+          <figure class="output-screen-img">
+            <img src="./resources/images/pantalla.png" alt="pantalla" />
+          </figure>
+        </div>
+        <div class="output-printer">
+          <p>Impresora</p>
+          <figure class="output-printer-img">
+            <img src="./resources/images/impresora.png" alt="impresora" />
+          </figure>
+        </div>
+      </section>
+      <hr>
+      <section class="options">
+        <form action="">
+          <div>
+            <label for="archivo">Archivo .ch</label>
+            <input type="file" name="file" id="file" accept=".ch" />
+          </div>
+          <div>
+            <label for="kernel">Kernel</label>
+            <input type="number" name="kernel" id="kernel" min="1" max="59" />
+          </div>
+          <div>
+            <label for="memory">Memoria</label>
+            <input
+              type="number"
+              name="memoria"
+              id="memoria"
+              min="1"
+              max="5100"
+            />
+          </div>
+        </form>
+      </section>
+      <hr>
+      <section class="memory">
+        <div class="memory-map">
+          <h3 class="memory-map-title">Mapa de memoria</h3>
+          <textarea
+            disabled
+            class="memory-map-textarea"
+            name="memory-map"
+            id="memory-map"
+            cols="30"
+            rows="10"
+          ></textarea>
+        </div>
+        <div class="variables">
+          <h3 class="variables-title">Variables</h3>
+          <textarea
+            disabled
+            name="variables"
+            id="variables"
+            cols="30"
+            rows="10"
+            class="variables-textrarea"
+          ></textarea>
+        </div>
+        <div class="tags">
+          <h3 class="variables-title">Etiquetas</h3>
+          <textarea
+            disabled
+            name="variables"
+            id="variables"
+            cols="30"
+            rows="10"
+            class="variables-textrarea"
+          ></textarea>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>Hecho por Ramdhei López Arcila</p>
+    </footer>
+  </body>
+</html>
