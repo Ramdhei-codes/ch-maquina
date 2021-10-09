@@ -22,16 +22,20 @@
     <main>
       <section class="output">
         <div class="output-screen">
-          <p>Pantalla</p>
-          <figure class="output-screen-img">
-            <img src="./resources/images/pantalla.png" alt="pantalla" />
-          </figure>
+          <p class="output-screen-head">Pantalla</p>
+          <div class="output-screen-drawing">
+            <p class="output-screen-text"></p>
+          </div>
+          
         </div>
         <div class="output-printer">
           <p>Impresora</p>
           <figure class="output-printer-img">
             <img src="./resources/images/impresora.png" alt="impresora" />
           </figure>
+          <div class="output-printer-text">
+            <p></p>
+          </div>
         </div>
       </section>
       <hr>
@@ -43,7 +47,7 @@
           </div>
           <div>
             <label for="kernel">Kernel</label>
-            <input type="number" name="kernel" id="kernel" min="1" max="59" />
+            <input type="number" name="kernel" id="kernel" min="1" max="59" value="59"/>
           </div>
           <div>
             <label for="memory">Memoria</label>
@@ -53,7 +57,12 @@
               id="memoria"
               min="1"
               max="5100"
+              value="5100"
             />
+          </div>
+
+          <div>
+            <button id="init" type="button">Inicializar</button>
           </div>
         </form>
       </section>

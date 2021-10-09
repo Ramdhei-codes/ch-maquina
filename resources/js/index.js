@@ -4,8 +4,13 @@ const printer = document.querySelector("output-printer");
 
 //Entradas y datos
 const file = document.querySelector("#file");
-const kernel = document.querySelector("#kernel");
-const memory = document.querySelector("#memory");
+const kernel = parseInt(document.querySelector("#kernel").value);
+const memory = document.querySelector("#memoria").value;
+
+//Tamaños límite
+const KERNEL_DEFAULT = 59;
+const MAX_MEMORY = 5100;
+
 
 //Mapa de memoria y otros
 const memoryMap = document.querySelector(".memory-map textarea");
@@ -16,6 +21,7 @@ const tags = document.querySelector(".tags textarea");
 const mainMemory = [];
 const tagsList = [];
 const variablesList = [];
+let acumulador = 0;
 
 const tokens = [
   "cargue",
@@ -58,6 +64,10 @@ function leerArchivo(e) {
 
 file.addEventListener("change", leerArchivo, false);
 
+function init() {
+  
+}
+
 function verificarSintaxis(lineArray) {
   lineArray.forEach((line) => {
     let instruction = line.trim().split(" ")[0];
@@ -65,9 +75,6 @@ function verificarSintaxis(lineArray) {
     if (tokens.includes(instruction)) {
       memoryMap.value += `${line.trim()}\n`;
       mainMemory.push(line.trim());
-
-    //   if (instruction === "nueva") {
-    //   }
     } else if (line.startsWith("//") || line === "") {
     } else {
       console.log(line);
