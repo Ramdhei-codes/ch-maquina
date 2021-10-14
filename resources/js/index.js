@@ -49,7 +49,7 @@ const tokens = {
   xxxx: xxxx,
 };
 
-initButton.addEventListener("click", init());
+initButton.addEventListener("click", init);
 
 function init() {
   mainMemory[0] = acumulador;
@@ -67,6 +67,7 @@ function fillKernel() {
   for (let i = 0; i < kernel; i++) {
     mainMemory.push("KERNEL-CH");
   }
+  alert("Kernel listo dentro de la memoria");
 }
 
 file.addEventListener("change", cargarArchivo, false);
@@ -94,6 +95,9 @@ function verificarSintaxis(lineArray) {
       if (instruction === "etiqueta") {
         tagsList.push(line);
       }
+      if (instruction.toLowerCase() === "nueva") {
+        addVariable(line);
+      }
     } else if (line.startsWith("//") || line === "") {
     } else {
       console.log(line);
@@ -105,11 +109,63 @@ function verificarSintaxis(lineArray) {
   console.log(mainMemory);
 }
 
-function cargue() {}
+function addVariable(line) {
+  line = line.split(" ");
+  line.shift();
+  console.log(line);
+
+  const baseCases = {
+    C: "",
+    I: 0,
+    R: 0.0,
+    L: 0,
+  };
+
+  const nombre = line[0];
+  const tipo = line[1];
+
+  let valor = line[2];
+
+  if (!valor) {
+    valor = baseCases[tipo];
+  }
+
+  let variable = {
+    nombre: nombre,
+    tipo: tipo,
+    valor: valor,
+  };
+
+  variablesList.push(variable);
+}
+
+function exec(stepByStep) {
+  let instruction;
+  let parameters;
+  let line;
+  for (let index = kernel + 1; index < mainMemory.length; index++) {
+    line = mainMemory[index].split(" ");
+    instruction = line[0];
+    line.shift();
+    parameters = line;
+
+    if (stepByStep) {
+      alert(`Ejecución de la línea ${mainMemory[index]}`);
+    }
+
+    tokens[instruction](parameters);
+  }
+}
+
+function cargue(params) {
+  console.log(params);
+}
 
 function almacene() {}
 
-function nueva() {}
+function nueva(params) {
+  console.log("Nueva " + params);
+}
 
 function lea() {}
 
