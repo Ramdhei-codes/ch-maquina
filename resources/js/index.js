@@ -25,6 +25,7 @@ const mainMemory = [];
 const tagsList = [];
 const variablesList = [];
 let acumulador = 0;
+const procesos = [];
 
 const tokens = {
   cargue: cargue,
@@ -97,11 +98,13 @@ function cargarArchivo(e) {
 function cargarPrograma(lineArray) {
   tagsList[programasCargados] = [];
   variablesList[programasCargados] = [];
+  procesos[programasCargados] = [];
   lineArray.forEach((line) => {
     let instruction = line.trim().split(" ")[0];
 
     if (Object.keys(tokens).includes(instruction)) {
       mainMemory.push(line.trim());
+      procesos[programasCargados].push(line.trim());
       if (instruction === "etiqueta") {
         tagsList[programasCargados].push(crearEtiqueta(line));
       }
@@ -127,7 +130,7 @@ function crearEtiqueta(line) {
   line.shift();
 
   const nombre = line[0];
-  const ubicacion = line[1];
+  const ubicacion = parseInt(line[1]);
 
   let etiqueta = {
     nombre: nombre,
@@ -219,6 +222,7 @@ function searchVariable(name) {
 
 function cargue(params) {
   const variable = searchVariable(params[0])[0];
+  console.log(variable);
   mainMemory[0] = variable.valor;
 }
 
