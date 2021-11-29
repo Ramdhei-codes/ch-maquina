@@ -184,52 +184,152 @@ function crearVariable(line) {
 }
 
 function exec(stepByStep) {
+  const indiceMetodo = document.querySelector(
+    "#metodo-planificacion"
+  ).selectedIndex;
+
+  const metodos = {
+    0: roundRobin,
+    1: SJF,
+    2: SJFExpropiativo,
+    3: prioridadExpropiativo,
+    4: prioridad,
+    5: FCFS,
+  };
+
+  metodos[indiceMetodo](stepByStep);
+}
+
+function roundRobin(stepByStep) {
+  console.log("Este es el método round robin");
+}
+function SJFExpropiativo(stepByStep) {
+  console.log("Este es el método SJF expropiativo");
+}
+
+function prioridadExpropiativo(stepByStep) {
+  console.log("Este es prioridad expropiativo");
+}
+
+function FCFS(stepByStep) {
   let instruction;
   let parameters;
   let line;
-  for (
-    let index = parseInt(kernel.value) + 1;
-    index < mainMemory.length;
-    index++
-  ) {
-    console.log(mainMemory[0]);
-    line = mainMemory[index].split(" ");
-    instruction = line[0];
-    line.shift();
-    parameters = line;
+  for (let i = 0; i < procesos.length; i++) {
+    console.log(procesos[i]);
+    for (let j = 0; j < procesos[i].length; j++) {
+      console.log(mainMemory[0]);
+      line = procesos[i][j].split(" ");
+      instruction = line[0];
+      line.shift();
+      parameters = line;
 
-    if (stepByStep) {
-      alert(`Ejecución de la línea ${mainMemory[index]}`);
-    }
+      if (stepByStep) {
+        alert(`Ejecución de la línea ${procesos[i][j]} en el proceso ${i}`);
+      }
 
-    if (instruction.toLowerCase() === "retorne") {
-      tokens[instruction](parameters);
-      break;
+      if (instruction.toLowerCase() === "retorne") {
+        tokens[instruction](parameters, i);
+        break;
+      }
+      tokens[instruction](parameters, i);
     }
-    tokens[instruction](parameters);
   }
 }
 
-function searchVariable(name) {
-  const variable = variablesList[0].find(
+function shuffle(array) {
+  let currentIndex = array.length,
+    randomIndex;
+
+  // While there remain elements to shuffle...
+  while (currentIndex != 0) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+
+  return array;
+}
+
+function prioridad() {
+  procesos = shuffle(procesos);
+
+  let instruction;
+  let parameters;
+  let line;
+  for (let i = 0; i < procesos.length; i++) {
+    for (let j = 0; j < procesos[i].length; j++) {
+      console.log(mainMemory[0]);
+      line = procesos[i][j].split(" ");
+      instruction = line[0];
+      line.shift();
+      parameters = line;
+
+      if (stepByStep) {
+        alert(`Ejecución de la línea ${procesos[i][j]}`);
+      }
+
+      if (instruction.toLowerCase() === "retorne") {
+        tokens[instruction](parameters, i);
+        break;
+      }
+      tokens[instruction](parameters, i);
+    }
+  }
+}
+
+function SJF(stepByStep) {
+  procesos = procesos.sort();
+  let instruction;
+  let parameters;
+  let line;
+  for (let i = 0; i < procesos.length; i++) {
+    for (let j = 0; j < procesos[i].length; j++) {
+      console.log(mainMemory[0]);
+      line = procesos[i][j].split(" ");
+      instruction = line[0];
+      line.shift();
+      parameters = line;
+
+      if (stepByStep) {
+        alert(`Ejecución de la línea ${procesos[i][j]}`);
+      }
+
+      if (instruction.toLowerCase() === "retorne") {
+        tokens[instruction](parameters, i);
+        break;
+      }
+      tokens[instruction](parameters, i);
+    }
+  }
+}
+
+function searchVariable(name, processIndex) {
+  const variable = variablesList[processIndex].find(
     (variable) => variable.nombre === name
   );
-  const index = variablesList[0].findIndex(
+  const index = variablesList[processIndex].findIndex(
     (variable) => variable.nombre === name
   );
   return [variable, index];
 }
 
-function cargue(params) {
-  const variable = searchVariable(params[0])[0];
+function cargue(params, processIndex) {
+  const variable = searchVariable(params[0], processIndex)[0];
   console.log(variable);
   mainMemory[0] = variable.valor;
 }
 
-function almacene(params) {
+function almacene(params, processIndex) {
   const variableName = params[0];
 
-  const variable = searchVariable(variableName);
+  const variable = searchVariable(variableName, processIndex);
 
   const index = variable[1];
 
@@ -238,10 +338,10 @@ function almacene(params) {
 
 function nueva() {}
 
-function lea(params) {
+function lea(params, processIndex) {
   const variableName = params[0];
 
-  const variable = searchVariable(variableName);
+  const variable = searchVariable(variableName, processIndex);
 
   const index = variable[1];
 
@@ -254,10 +354,10 @@ function lea(params) {
   variablesList[0][index].valor = nuevoValor;
 }
 
-function sume(params) {
+function sume(params, processIndex) {
   const variable = params[0];
 
-  const variableData = searchVariable(variable);
+  const variableData = searchVariable(variable, processIndex);
 
   const sumando = variableData[0].valor;
 
@@ -269,10 +369,10 @@ function sume(params) {
   mainMemory[0] += sumando;
 }
 
-function reste(params) {
+function reste(params, processIndex) {
   const variable = params[0];
 
-  const variableData = searchVariable(variable);
+  const variableData = searchVariable(variable, processIndex);
 
   const resta = variableData[0].valor;
 
@@ -284,10 +384,10 @@ function reste(params) {
   mainMemory[0] += resta;
 }
 
-function multiplique(params) {
+function multiplique(params, processIndex) {
   const variable = params[0];
 
-  const variableData = searchVariable(variable);
+  const variableData = searchVariable(variable, processIndex);
 
   const factor = variableData[0].valor;
 
@@ -299,10 +399,10 @@ function multiplique(params) {
   mainMemory[0] += factor;
 }
 
-function divida(params) {
+function divida(params, processIndex) {
   const variable = params[0];
 
-  const variableData = searchVariable(variable);
+  const variableData = searchVariable(variable, processIndex);
 
   const dividendo = variableData[0].valor;
 
@@ -319,10 +419,10 @@ function divida(params) {
   mainMemory[0] /= dividendo;
 }
 
-function potencia(params) {
+function potencia(params, processIndex) {
   const variable = params[0];
 
-  const variableData = searchVariable(variable);
+  const variableData = searchVariable(variable, processIndex);
 
   const pot = variableData[0].valor;
 
@@ -334,10 +434,10 @@ function potencia(params) {
   mainMemory[0] = Math.pow(mainMemory[0], pot);
 }
 
-function modulo(params) {
+function modulo(params, processIndex) {
   const variable = params[0];
 
-  const variableData = searchVariable(variable);
+  const variableData = searchVariable(variable, processIndex);
 
   const mod = variableData[0].valor;
 
@@ -354,70 +454,70 @@ function modulo(params) {
   mainMemory[0] %= mod;
 }
 
-function concatene(params) {
+function concatene(params, processIndex) {
   const cadena = params[0];
 
   mainMemory[0] = `${mainMemory[0]}${cadena}`;
 }
 
-function elimine(params) {
+function elimine(params, processIndex) {
   const subcadena = params[0];
 
   mainMemory[0].replaceAll(subcadena, "");
 }
 
-function extraiga(params) {}
+function extraiga(params, processIndex) {}
 
-function Y(params) {
+function Y(params, processIndex) {
   if (params.length !== 3) {
     alert(`Parámetros erróneos, deben ser 3 y se pusieron ${params.length}`);
   }
 
-  const param1 = searchVariable(params[0]);
-  const param2 = searchVariable(params[1]);
-  const param3 = searchVariable(params[2]);
+  const param1 = searchVariable(params[0], processIndex);
+  const param2 = searchVariable(params[1], processIndex);
+  const param3 = searchVariable(params[2], processIndex);
 
   const indexParam3 = param3[1];
 
   variablesList[0][indexParam3].valor = param1[0].valor && param2[0].valor;
 }
 
-function O(params) {
+function O(params, processIndex) {
   if (params.length !== 3) {
     alert(`Parámetros erróneos, deben ser 3 y se pusieron ${params.length}`);
   }
 
-  const param1 = searchVariable(params[0]);
-  const param2 = searchVariable(params[1]);
-  const param3 = searchVariable(params[2]);
+  const param1 = searchVariable(params[0], processIndex);
+  const param2 = searchVariable(params[1], processIndex);
+  const param3 = searchVariable(params[2], processIndex);
 
   const indexParam3 = param3[1];
 
   variablesList[0][indexParam3].valor = param1[0].valor || param2[0].valor;
 }
 
-function NO(params) {
+function NO(params, processIndex) {
   if (params.length !== 2) {
     alert(`Parámetros erróneos, deben ser 2 y se pusieron ${params.length}`);
   }
 
-  const param1 = searchVariable(params[0]);
-  const param2 = searchVariable(params[1]);
+  const param1 = searchVariable(params[0], processIndex);
+  const param2 = searchVariable(params[1], processIndex);
 
   const indexParam2 = param2[1];
 
   variablesList[0][indexParam2].valor = !param1[0].valor;
 }
 
-function muestre(params) {
-  const variable = searchVariable(params[0]);
+function muestre(params, processIndex) {
+  const variable = searchVariable(params[0], processIndex);
   const variableInfo = variable[0];
 
   screen.innerHTML = variableInfo.valor;
 }
 
-function imprima(params) {
-  const variable = searchVariable(params[0]);
+function imprima(params, processIndex) {
+  const variable = searchVariable(params[0], processIndex);
   const variableInfo = variable[0];
 
   printer.innerHTML = variableInfo.valor;
