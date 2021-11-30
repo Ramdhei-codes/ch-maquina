@@ -9,6 +9,7 @@ console.log(kernel);
 const memory = document.querySelector("#memoria");
 const initButton = document.querySelector("#init");
 const execButton = document.querySelector("#exec");
+const quantum = document.querySelector("#quantum");
 
 //Tamaños límite
 const KERNEL_DEFAULT = 59;
@@ -102,9 +103,11 @@ function cargarPrograma(lineArray) {
   lineArray.forEach((line) => {
     let instruction = line.trim().split(" ")[0];
 
+    mainMemory.push(line.trim());
+    memoryMap.textContent += `${line}\n`;
+    procesos[programasCargados].push(line.trim());
+
     if (Object.keys(tokens).includes(instruction)) {
-      mainMemory.push(line.trim());
-      procesos[programasCargados].push(line.trim());
       if (instruction === "etiqueta") {
         tagsList[programasCargados].push(crearEtiqueta(line));
       }
@@ -116,10 +119,6 @@ function cargarPrograma(lineArray) {
       alert(`Error en la línea ${line}, sintaxis incorrecta`);
       throw new Error("Invalid syntax at " + line);
     }
-  });
-
-  variablesList[programasCargados].forEach((variable) => {
-    mainMemory.push(variable.valor);
   });
 
   programasCargados++;
@@ -136,6 +135,8 @@ function crearEtiqueta(line) {
     nombre: nombre,
     ubicacion: ubicacion,
   };
+
+  tags.textContent += `${nombre}  ${ubicacion} \n`;
 
   return etiqueta;
 }
@@ -180,6 +181,8 @@ function crearVariable(line) {
     valor: valor,
   };
 
+  variables.textContent += `${nombre}  ${valor} \n`;
+
   return variable;
 }
 
@@ -201,14 +204,65 @@ function exec(stepByStep) {
 }
 
 function roundRobin(stepByStep) {
-  console.log("Este es el método round robin");
+  let quantumNumber = parseInt(quantum.value);
+  console.log(quantumNumber);
+  let instruction;
+  let parameters;
+  let line;
+  let cantidadRetorne = 0;
+  let vueltas = 0;
+  for (let i = 0; i < procesos.length; i++) {
+    // console.log(procesos[i]);
+    for (let j = quantumNumber * vueltas; j < procesos[i].length; j++) {
+      let actual = quantumNumber * vueltas;
+      if (!procesos[i][j]) {
+        cantidadRetorne++;
+        break;
+      }
+
+      if (j - actual === quantumNumber) {
+        break;
+      }
+
+      console.log(mainMemory[0]);
+      line = procesos[i][j].split(" ");
+      instruction = line[0];
+      line.shift();
+      parameters = line;
+
+      if (stepByStep) {
+        alert(
+          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        );
+      }
+
+      if (instruction.toLowerCase() === "retorne") {
+        cantidadRetorne++;
+      } else {
+        console.log(procesos[i][j]);
+        tokens[instruction](parameters, i);
+      }
+    }
+
+    if (cantidadRetorne < procesos.length) {
+      i = 0;
+    }
+
+    if (cantidadRetorne >= procesos.length) {
+      break;
+    } else if (cantidadRetorne < procesos.length && i === procesos.length - 1) {
+      i = 0;
+    }
+
+    vueltas++;
+  }
 }
 function SJFExpropiativo(stepByStep) {
-  console.log("Este es el método SJF expropiativo");
+  SJF(stepByStep);
 }
 
 function prioridadExpropiativo(stepByStep) {
-  console.log("Este es prioridad expropiativo");
+  prioridad(stepByStep);
 }
 
 function FCFS(stepByStep) {
@@ -225,11 +279,12 @@ function FCFS(stepByStep) {
       parameters = line;
 
       if (stepByStep) {
-        alert(`Ejecución de la línea ${procesos[i][j]} en el proceso ${i}`);
+        alert(
+          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        );
       }
 
       if (instruction.toLowerCase() === "retorne") {
-        tokens[instruction](parameters, i);
         break;
       }
       tokens[instruction](parameters, i);
@@ -276,9 +331,12 @@ function prioridad() {
       }
 
       if (instruction.toLowerCase() === "retorne") {
-        tokens[instruction](parameters, i);
         break;
       }
+      // else if (instruction.toLowerCase() === "vaya") {
+      //   const etiqueta = searchTag(parameters[0], i);
+      //   j = etiqueta.ubicacion;
+      // }
       tokens[instruction](parameters, i);
     }
   }
@@ -302,9 +360,12 @@ function SJF(stepByStep) {
       }
 
       if (instruction.toLowerCase() === "retorne") {
-        tokens[instruction](parameters, i);
         break;
       }
+      // else if (instruction.toLowerCase() === "vaya") {
+      //   const etiqueta = searchTag(parameters[0], i);
+      //   j = etiqueta.ubicacion;
+      // }
       tokens[instruction](parameters, i);
     }
   }
@@ -318,6 +379,12 @@ function searchVariable(name, processIndex) {
     (variable) => variable.nombre === name
   );
   return [variable, index];
+}
+
+function searchTag(name, processIndex) {
+  const tag = tagsList[processIndex].find((tag) => tag.nombre === name);
+
+  return tag;
 }
 
 function cargue(params, processIndex) {
@@ -531,4 +598,7 @@ function etiqueta() {}
 
 function retorne() {}
 
-function xxxx() {}
+//Pone en el acumulador un número random entre 1 y 10
+function xxxx(params) {
+  mainMemory[0] = Math.random() * (10 - 1) + 1;
+}
