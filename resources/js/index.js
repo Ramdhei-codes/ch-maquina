@@ -9,6 +9,9 @@ console.log(kernel);
 const memory = document.querySelector("#memoria");
 const initButton = document.querySelector("#init");
 const execButton = document.querySelector("#exec");
+const quantum = document.querySelector("#quantum");
+const pasoAPaso = document.querySelector("#stepByStep");
+const textAcumulador = document.querySelector("#acumulador-text");
 
 //Tamaños límite
 const KERNEL_DEFAULT = 59;
@@ -92,7 +95,7 @@ function cargarArchivo(e) {
   };
 
   lector.readAsText(archivo);
-  alert(`${archivo.name} cargado con éxito`);
+  alert(`Verificaremos la sintaxis de ${archivo.name}`);
 }
 
 function cargarPrograma(lineArray) {
@@ -103,23 +106,20 @@ function cargarPrograma(lineArray) {
     let instruction = line.trim().split(" ")[0];
 
     if (Object.keys(tokens).includes(instruction)) {
-      mainMemory.push(line.trim());
-      procesos[programasCargados].push(line.trim());
       if (instruction === "etiqueta") {
         tagsList[programasCargados].push(crearEtiqueta(line));
       }
       if (instruction.toLowerCase() === "nueva") {
         variablesList[programasCargados].push(crearVariable(line));
       }
+      mainMemory.push(line.trim());
+      memoryMap.textContent += `${line}\n`;
+      procesos[programasCargados].push(line.trim());
     } else if (line.startsWith("//") || line === "") {
     } else {
       alert(`Error en la línea ${line}, sintaxis incorrecta`);
       throw new Error("Invalid syntax at " + line);
     }
-  });
-
-  variablesList[programasCargados].forEach((variable) => {
-    mainMemory.push(variable.valor);
   });
 
   programasCargados++;
@@ -136,6 +136,8 @@ function crearEtiqueta(line) {
     nombre: nombre,
     ubicacion: ubicacion,
   };
+
+  tags.textContent += `${nombre}  ${ubicacion} \n`;
 
   return etiqueta;
 }
@@ -180,16 +182,23 @@ function crearVariable(line) {
     valor: valor,
   };
 
+  variables.textContent += `${nombre}  ${valor} \n`;
+
   return variable;
 }
 
 function exec(stepByStep) {
+  if (pasoAPaso.selectedIndex === 0) {
+    stepByStep = true;
+  } else {
+    stepByStep = false;
+  }
   const indiceMetodo = document.querySelector(
     "#metodo-planificacion"
   ).selectedIndex;
 
   const metodos = {
-    0: roundRobin,
+    0: RR,
     1: SJF,
     2: SJFExpropiativo,
     3: prioridadExpropiativo,
@@ -200,18 +209,61 @@ function exec(stepByStep) {
   metodos[indiceMetodo](stepByStep);
 }
 
-function roundRobin(stepByStep) {
-  console.log("Este es el método round robin");
+function RR(stepByStep) {
+  let quantumNumber = parseInt(quantum.value);
+  console.log(quantumNumber);
+  let instruction;
+  let parameters;
+  let line;
+
+  let i = 0;
+
+  while (true) {
+    for (let j = 0; j < procesos[i].length; j++) {
+      console.log(mainMemory[0]);
+      line = procesos[i][j].split(" ");
+      instruction = line[0];
+      line.shift();
+      parameters = line;
+
+      if (j === quantumNumber) {
+        break;
+      }
+
+      if (stepByStep) {
+        alert(
+          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        );
+      }
+
+      if (instruction.toLowerCase() === "retorne") {
+        procesos[i].shift();
+        break;
+      }
+      tokens[instruction](parameters, i);
+      procesos[i].shift();
+    }
+    let llenos = procesos.map((proceso) => proceso.length > 0);
+    let verificaLlenos = llenos.every(elemento => elemento)
+
+    if(!verificaLlenos) {
+      break;
+    }
+    procesos.push(procesos.shift());
+  }
 }
+
+
 function SJFExpropiativo(stepByStep) {
-  console.log("Este es el método SJF expropiativo");
+  SJF(stepByStep);
 }
 
 function prioridadExpropiativo(stepByStep) {
-  console.log("Este es prioridad expropiativo");
+  prioridad(stepByStep);
 }
 
 function FCFS(stepByStep) {
+  textAcumulador.textContent = mainMemory[0];
   let instruction;
   let parameters;
   let line;
@@ -225,11 +277,39 @@ function FCFS(stepByStep) {
       parameters = line;
 
       if (stepByStep) {
-        alert(`Ejecución de la línea ${procesos[i][j]} en el proceso ${i}`);
+        alert(
+          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        );
+      }
+      if (instruction === "vaya") {
+        const tag = searchTag(parameters[0], i);
+        let lineaVaya = procesos[i][tag.ubicacion].split(" ");
+        let instruccionVaya = lineaVaya[0];
+        lineaVaya.shift();
+        let parametrosVaya = lineaVaya;
+        tokens[instruccionVaya](parametrosVaya);
+      } else if (instruction === "vayasi") {
+        const tag = searchTag(parameters[0], i);
+        const tag1 = searchTag(parameters[1], i);
+
+        let lineaVaya = procesos[i][tag.ubicacion].split(" ");
+        let lineaVaya1 = procesos[i][tag1.ubicacion].split(" ");
+
+        let instruccionVaya = lineaVaya[0];
+        let instruccionVaya1 = lineaVaya1[0];
+        lineaVaya.shift();
+        lineaVaya1.shift();
+        let parametrosVaya = lineaVaya;
+        let parametrosVaya1 = lineaVaya1;
+
+        if (acumulador > 0) {
+          tokens[instruccionVaya](parametrosVaya);
+        } else if (acumulador < 0) {
+          tokens[instruccionVaya1](parametrosVaya1);
+        }
       }
 
       if (instruction.toLowerCase() === "retorne") {
-        tokens[instruction](parameters, i);
         break;
       }
       tokens[instruction](parameters, i);
@@ -272,12 +352,40 @@ function prioridad() {
       parameters = line;
 
       if (stepByStep) {
-        alert(`Ejecución de la línea ${procesos[i][j]}`);
+        alert(
+          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        );
       }
 
       if (instruction.toLowerCase() === "retorne") {
-        tokens[instruction](parameters, i);
         break;
+      }
+      if (instruction === "vaya") {
+        const tag = searchTag(parameters[0], i);
+        let lineaVaya = procesos[i][tag.ubicacion].split(" ");
+        let instruccionVaya = lineaVaya[0];
+        lineaVaya.shift();
+        let parametrosVaya = lineaVaya;
+        tokens[instruccionVaya](parametrosVaya);
+      } else if (instruction === "vayasi") {
+        const tag = searchTag(parameters[0], i);
+        const tag1 = searchTag(parameters[1], i);
+
+        let lineaVaya = procesos[i][tag.ubicacion].split(" ");
+        let lineaVaya1 = procesos[i][tag1.ubicacion].split(" ");
+
+        let instruccionVaya = lineaVaya[0];
+        let instruccionVaya1 = lineaVaya1[0];
+        lineaVaya.shift();
+        lineaVaya1.shift();
+        let parametrosVaya = lineaVaya;
+        let parametrosVaya1 = lineaVaya1;
+
+        if (acumulador > 0) {
+          tokens[instruccionVaya](parametrosVaya);
+        } else if (acumulador < 0) {
+          tokens[instruccionVaya1](parametrosVaya1);
+        }
       }
       tokens[instruction](parameters, i);
     }
@@ -285,25 +393,53 @@ function prioridad() {
 }
 
 function SJF(stepByStep) {
-  procesos = procesos.sort();
+  const procesosSJF = procesos.sort();
   let instruction;
   let parameters;
   let line;
-  for (let i = 0; i < procesos.length; i++) {
-    for (let j = 0; j < procesos[i].length; j++) {
+  for (let i = 0; i < procesosSJF.length; i++) {
+    for (let j = 0; j < procesosSJF[i].length; j++) {
       console.log(mainMemory[0]);
-      line = procesos[i][j].split(" ");
+      line = procesosSJF[i][j].split(" ");
       instruction = line[0];
       line.shift();
       parameters = line;
 
       if (stepByStep) {
-        alert(`Ejecución de la línea ${procesos[i][j]}`);
+        alert(
+          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        );
       }
 
       if (instruction.toLowerCase() === "retorne") {
-        tokens[instruction](parameters, i);
         break;
+      }
+      if (instruction === "vaya") {
+        const tag = searchTag(parameters[0], i);
+        let lineaVaya = procesos[i][tag.ubicacion].split(" ");
+        let instruccionVaya = lineaVaya[0];
+        lineaVaya.shift();
+        let parametrosVaya = lineaVaya;
+        tokens[instruccionVaya](parametrosVaya);
+      } else if (instruction === "vayasi") {
+        const tag = searchTag(parameters[0], i);
+        const tag1 = searchTag(parameters[1], i);
+
+        let lineaVaya = procesos[i][tag.ubicacion].split(" ");
+        let lineaVaya1 = procesos[i][tag1.ubicacion].split(" ");
+
+        let instruccionVaya = lineaVaya[0];
+        let instruccionVaya1 = lineaVaya1[0];
+        lineaVaya.shift();
+        lineaVaya1.shift();
+        let parametrosVaya = lineaVaya;
+        let parametrosVaya1 = lineaVaya1;
+
+        if (acumulador > 0) {
+          tokens[instruccionVaya](parametrosVaya);
+        } else if (acumulador < 0) {
+          tokens[instruccionVaya1](parametrosVaya1);
+        }
       }
       tokens[instruction](parameters, i);
     }
@@ -320,7 +456,14 @@ function searchVariable(name, processIndex) {
   return [variable, index];
 }
 
+function searchTag(name, processIndex) {
+  const tag = tagsList[processIndex].find((tag) => tag.nombre === name);
+
+  return tag;
+}
+
 function cargue(params, processIndex) {
+  console.log(searchVariable(params[0], processIndex));
   const variable = searchVariable(params[0], processIndex)[0];
   console.log(variable);
   mainMemory[0] = variable.valor;
@@ -372,7 +515,10 @@ function sume(params, processIndex) {
 function reste(params, processIndex) {
   const variable = params[0];
 
+  console.log(variable);
+
   const variableData = searchVariable(variable, processIndex);
+  console.log("VarData " + variableData);
 
   const resta = variableData[0].valor;
 
@@ -381,7 +527,7 @@ function reste(params, processIndex) {
     throw new Error("El acumulador no es un número");
   }
 
-  mainMemory[0] += resta;
+  mainMemory[0] -= resta;
 }
 
 function multiplique(params, processIndex) {
@@ -510,17 +656,27 @@ function NO(params, processIndex) {
 }
 
 function muestre(params, processIndex) {
-  const variable = searchVariable(params[0], processIndex);
-  const variableInfo = variable[0];
+  if (params[0] === "acumulador") {
+    screen.innerHTML = mainMemory[0];
+  } else {
+    console.log(params);
+    const variable = searchVariable(params[0], processIndex);
+    const variableInfo = variable[0];
+    console.log(variableInfo);
 
-  screen.innerHTML = variableInfo.valor;
+    screen.innerHTML = variableInfo.valor;
+  }
 }
 
 function imprima(params, processIndex) {
-  const variable = searchVariable(params[0], processIndex);
-  const variableInfo = variable[0];
+  if (params[0] === "acumulador") {
+    printer.innerHTML = mainMemory[0];
+  } else {
+    const variable = searchVariable(params[0], processIndex);
+    const variableInfo = variable[0];
 
-  printer.innerHTML = variableInfo.valor;
+    printer.innerHTML = variableInfo.valor;
+  }
 }
 
 function vaya() {}
@@ -531,4 +687,28 @@ function etiqueta() {}
 
 function retorne() {}
 
-function xxxx() {}
+//Pone en el acumulador un número random entre 1 y 10
+function xxxx(params) {
+  mainMemory[0] = Math.floor(Math.random() * (10 - 1) + 1);
+}
+
+function saveTextAsFile(textToWrite, fileNameToSaveAs = "creado.ch") {
+  var textFileAsBlob = new Blob([textToWrite], { type: "text/plain" });
+  var downloadLink = document.createElement("a");
+  downloadLink.download = fileNameToSaveAs;
+  downloadLink.innerHTML = "Download File";
+  if (window.webkitURL != null) {
+    // Chrome allows the link to be clicked
+    // without actually adding it to the DOM.
+    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+  } else {
+    // Firefox requires the link to be added to the DOM
+    // before it can be clicked.
+    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+  }
+
+  downloadLink.click();
+}

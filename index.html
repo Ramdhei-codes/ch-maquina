@@ -26,7 +26,6 @@
           <div class="output-screen-drawing">
             <p class="output-screen-text"></p>
           </div>
-          
         </div>
         <div class="output-printer">
           <p>Impresora</p>
@@ -37,8 +36,19 @@
             <p></p>
           </div>
         </div>
+        <div>
+          <label style="color: black">Acumulador</label>
+          <textarea
+            name=""
+            id="acumulador-text"
+            cols="10"
+            rows="10"
+            class="acumulador"
+            disabled
+          ></textarea>
+        </div>
       </section>
-      <hr>
+      <hr />
       <section class="options">
         <form action="">
           <div>
@@ -47,7 +57,7 @@
           </div>
           <div>
             <label for="kernel">Kernel</label>
-            <input type="number" name="kernel" id="kernel" min="1" max="59"/>
+            <input type="number" name="kernel" id="kernel" min="1" max="59" />
           </div>
           <div>
             <label for="memory">Memoria</label>
@@ -65,9 +75,25 @@
               <option value="Round Robin" selected>Round Robin</option>
               <option value="SJF no expropiativo">SJF no expropiativo</option>
               <option value="SJF expropiativo">SJF expropiativo</option>
-              <option value="Prioridad expropiativo">Proridad expropiativo</option>
-              <option value="Prioridad no expropiativo">Prioridad no expropiativo</option>
+              <option value="Prioridad expropiativo">
+                Proridad expropiativo
+              </option>
+              <option value="Prioridad no expropiativo">
+                Prioridad no expropiativo
+              </option>
               <option value="Orden de llegada">Orden de llegada</option>
+            </select>
+          </div>
+          <div>
+            <label for="method">Quantum para método Round Robin</label>
+            <input type="number" name="" id="quantum" />
+          </div>
+
+          <div>
+            <label for="pasoApaso">Ejecución paso a paso</label>
+            <select name="" id="stepByStep">
+              <option value="">Si</option>
+              <option value="">No</option>
             </select>
           </div>
 
@@ -79,7 +105,7 @@
           </div>
         </form>
       </section>
-      <hr>
+      <hr />
       <section class="memory">
         <div class="memory-map">
           <h3 class="memory-map-title">Mapa de memoria</h3>
@@ -114,6 +140,17 @@
             class="variables-textrarea"
           ></textarea>
         </div>
+      </section>
+      <section class="editor">
+        <h2>Escribe tu programa CH acá</h2>
+        <textarea
+          style="display: block;"
+          name=""
+          id="t"
+          cols="30"
+          rows="10"
+        ></textarea>
+        <button onclick="saveTextAsFile(t.value)">Download</button>
       </section>
     </main>
     <footer>
