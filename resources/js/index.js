@@ -105,6 +105,10 @@ function cargarPrograma(lineArray) {
   lineArray.forEach((line) => {
     let instruction = line.trim().split(" ")[0];
 
+    mainMemory.push(line.trim());
+    memoryMap.textContent += `${line}\n`;
+    procesos[programasCargados].push(line.trim());
+
     if (Object.keys(tokens).includes(instruction)) {
       if (instruction === "etiqueta") {
         tagsList[programasCargados].push(crearEtiqueta(line));
