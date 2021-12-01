@@ -105,6 +105,10 @@ function cargarPrograma(lineArray) {
   lineArray.forEach((line) => {
     let instruction = line.trim().split(" ")[0];
 
+    mainMemory.push(line.trim());
+    memoryMap.textContent += `${line}\n`;
+    procesos[programasCargados].push(line.trim());
+
     if (Object.keys(tokens).includes(instruction)) {
       if (instruction === "etiqueta") {
         tagsList[programasCargados].push(crearEtiqueta(line));
@@ -219,6 +223,7 @@ function RR(stepByStep) {
   let i = 0;
 
   while (true) {
+    textAcumulador.textContent = mainMemory[0];
     for (let j = 0; j < procesos[i].length; j++) {
       console.log(mainMemory[0]);
       line = procesos[i][j].split(" ");
@@ -244,15 +249,14 @@ function RR(stepByStep) {
       procesos[i].shift();
     }
     let llenos = procesos.map((proceso) => proceso.length > 0);
-    let verificaLlenos = llenos.every(elemento => elemento)
+    let verificaLlenos = llenos.every((elemento) => elemento);
 
-    if(!verificaLlenos) {
+    if (!verificaLlenos) {
       break;
     }
     procesos.push(procesos.shift());
   }
 }
-
 
 function SJFExpropiativo(stepByStep) {
   SJF(stepByStep);
