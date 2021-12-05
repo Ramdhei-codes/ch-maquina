@@ -105,10 +105,6 @@ function cargarPrograma(lineArray) {
   lineArray.forEach((line) => {
     let instruction = line.trim().split(" ")[0];
 
-    mainMemory.push(line.trim());
-    memoryMap.textContent += `${line}\n`;
-    procesos[programasCargados].push(line.trim());
-
     if (Object.keys(tokens).includes(instruction)) {
       if (instruction === "etiqueta") {
         tagsList[programasCargados].push(crearEtiqueta(line));
@@ -236,8 +232,8 @@ function RR(stepByStep) {
       }
 
       if (stepByStep) {
-        alert(
-          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        stepByStep = confirm(
+          `Ejecución de la línea ${procesos[i][j]}. ¿Desea seguir en modo paso a paso?`
         );
       }
 
@@ -281,8 +277,8 @@ function FCFS(stepByStep) {
       parameters = line;
 
       if (stepByStep) {
-        alert(
-          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        stepByStep = confirm(
+          `Ejecución de la línea ${procesos[i][j]}. ¿Desea seguir en modo paso a paso?`
         );
       }
       if (instruction === "vaya") {
@@ -356,8 +352,8 @@ function prioridad() {
       parameters = line;
 
       if (stepByStep) {
-        alert(
-          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        stepByStep = confirm(
+          `Ejecución de la línea ${procesos[i][j]}. ¿Desea seguir en modo paso a paso?`
         );
       }
 
@@ -410,8 +406,8 @@ function SJF(stepByStep) {
       parameters = line;
 
       if (stepByStep) {
-        alert(
-          `Ejecución de la línea ${procesos[i][j]} en el proceso ${i} linea ${j}`
+        stepByStep = confirm(
+          `Ejecución de la línea ${procesos[i][j]}. ¿Desea seguir en modo paso a paso?`
         );
       }
 
